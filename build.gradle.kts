@@ -10,8 +10,7 @@ import noxesium.GitCommitIdValueSource
 plugins {
     id("noxesium.publishing") apply false
 
-    kotlin("jvm") version "2.2.0" apply false
-    alias(libs.plugins.moddev) apply false
+    kotlin("jvm") version "2.3.0" apply false
     alias(libs.plugins.loom) apply false
     alias(libs.plugins.spotless) apply false
     alias(libs.plugins.paperweight) apply false
@@ -19,7 +18,7 @@ plugins {
     alias(libs.plugins.run.paper) apply false
 }
 
-val javaVersion: Int = 21
+val javaVersion: Int = 25
 
 allprojects {
     group = "com.noxcrew.noxesium"
@@ -30,12 +29,12 @@ allprojects {
     version = "${property("mod_version")}+${gitCommitId}"
 
     repositories {
+        maven("https://maven.covers1624.net/")
         maven("https://repo.papermc.io/repository/maven-public/")
         maven("https://maven.enginehub.org/repo/")
         maven("https://maven.fabricmc.net/")
         maven("https://maven.terraformersmc.com/")
         maven("https://maven.shedaniel.me/")
-        maven("https://maven.covers1624.net/")
         maven("https://repo.viaversion.com")
         mavenCentral()
         maven {
@@ -87,7 +86,7 @@ subprojects {
 
     extensions.configure<SpotlessExtension> {
         java {
-            palantirJavaFormat("2.50.0")
+            palantirJavaFormat("2.89.0")
         }
         kotlin {
             ktlint("1.5.0")

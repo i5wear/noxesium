@@ -1,18 +1,14 @@
 package com.noxcrew.noxesium.core.fabric.mixin.feature.debugoptions;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.noxcrew.noxesium.api.component.GameComponents;
+import com.noxcrew.noxesium.core.fabric.NoxesiumMod;
 import com.noxcrew.noxesium.core.fabric.config.NoxesiumSettingsScreen;
-import com.noxcrew.noxesium.core.feature.DebugOption;
 import com.noxcrew.noxesium.core.registry.CommonGameComponentTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
@@ -41,7 +37,7 @@ public abstract class RestrictDebugHotkeysMixin {
         if (this.debugCrashKeyTime > 0L && this.debugCrashKeyTime < Util.getMillis() - 100L) {
             return original;
         }
-        if (event.key() == InputConstants.KEY_W) {
+        if (NoxesiumMod.getInstance().getKeybinds().keyDebugNoxesium.matches(event)) {
             Minecraft.getInstance().setScreen(new NoxesiumSettingsScreen(null));
             return true;
         }
@@ -57,7 +53,7 @@ public abstract class RestrictDebugHotkeysMixin {
                 minecraft
                         .gui
                         .getChat()
-                        .addMessage(Component.translatable("debug.warning.option.disabled")
+                        .addClientSystemMessage(Component.translatable("debug.warning.option.disabled")
                                 .withStyle(ChatFormatting.RED));
             }
             cir.setReturnValue(true);
@@ -73,29 +69,10 @@ public abstract class RestrictDebugHotkeysMixin {
                 minecraft
                         .gui
                         .getChat()
-                        .addMessage(Component.translatable("debug.warning.option.disabled")
+                        .addClientSystemMessage(Component.translatable("debug.warning.option.disabled")
                                 .withStyle(ChatFormatting.RED));
             }
             cir.setReturnValue(true);
         }
-    }
-
-    @WrapOperation(
-            method = "keyPress",
-            at = @At(value = "FIELD", target = "Lnet/minecraft/client/Options;hideGui:Z", ordinal = 1))
-    public void preventHidingGui(Options instance, boolean value, Operation<Void> original) {
-        var restrictedOptions =
-                GameComponents.getInstance().noxesium$getComponent(CommonGameComponentTypes.RESTRICT_DEBUG_OPTIONS);
-        if (restrictedOptions != null && restrictedOptions.contains(DebugOption.HIDE_UI.getKeyCode())) {
-            if (minecraft != null) {
-                minecraft
-                        .gui
-                        .getChat()
-                        .addMessage(Component.translatable("debug.warning.option.disabled")
-                                .withStyle(ChatFormatting.RED));
-            }
-            return;
-        }
-        original.call(instance, value);
     }
 }
